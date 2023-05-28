@@ -166,12 +166,12 @@ int main()
 		// Poligono Preenchido - GL_TRIANGLES
 		
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, 36 * 2);
 
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
 		
-		glDrawArrays(GL_POINTS, 0, 36);
+		glDrawArrays(GL_POINTS, 0, 36 * 2);
 		glBindVertexArray(0);
 
 		// Troca os buffers da tela
@@ -254,7 +254,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int setupGeometry()
 {
 	GLfloat vertices[] = {
-		// Front face
+		// Cubo 1 - Face Frontal
 		-0.5, -0.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 0 - Vermelho
 		0.5, -0.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 1 - Vermelho
 		0.5, 0.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 2 - Vermelho
@@ -263,7 +263,7 @@ int setupGeometry()
 		-0.5, 0.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 4 - Vermelho
 		-0.5, -0.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 5 - Vermelho
 
-		// Back face
+		// Cubo 1 - Face Traseira
 		-0.5, -0.5, -0.5, 0.0, 1.0, 0.0,	// Vértice 6 - Verde
 		-0.5, 0.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 7 - Verde
 		0.5, 0.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 8 - Verde
@@ -272,7 +272,7 @@ int setupGeometry()
 		0.5, -0.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 10 - Verde
 		-0.5, -0.5, -0.5, 0.0, 1.0, 0.0,	// Vértice 11 - Verde
 
-		// Left face
+		// Cubo 1 - Face Esquerda
 		-0.5, 0.5, -0.5, 0.0, 0.0, 1.0,		// Vértice 12 - Azul
 		-0.5, 0.5, 0.5, 0.0, 0.0, 1.0,		// Vértice 13 - Azul
 		-0.5, -0.5, 0.5, 0.0, 0.0, 1.0,		// Vértice 14 - Azul
@@ -281,7 +281,7 @@ int setupGeometry()
 		-0.5, -0.5, -0.5, 0.0, 0.0, 1.0,	// Vértice 16 - Azul
 		-0.5, 0.5, -0.5, 0.0, 0.0, 1.0,		// Vértice 17 - Azul
 
-		// Right face
+		// Cubo 1 - Face Direita
 		0.5, 0.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 18 - Amarelo
 		0.5, 0.5, 0.5, 1.0, 1.0, 0.0,		// Vértice 19 - Amarelo
 		0.5, -0.5, 0.5, 1.0, 1.0, 0.0,		// Vértice 20 - Amarelo
@@ -290,7 +290,7 @@ int setupGeometry()
 		0.5, -0.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 22 - Amarelo
 		0.5, 0.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 23 - Amarelo
 
-		// Top face
+		// Cubo 1 - Face Superior
 		-0.5, 0.5, -0.5, 1.0, 0.0, 1.0,		// Vértice 24 - Magenta
 		-0.5, 0.5, 0.5, 1.0, 0.0, 1.0,		// Vértice 25 - Magenta
 		0.5, 0.5, 0.5, 1.0, 0.0, 1.0,		// Vértice 26 - Magenta
@@ -299,14 +299,68 @@ int setupGeometry()
 		0.5, 0.5, -0.5, 1.0, 0.0, 1.0,		// Vértice 28 - Magenta
 		-0.5, 0.5, -0.5, 1.0, 0.0, 1.0,		// Vértice 29 - Magenta
 
-		// Bottom face
+		// Cubo 1 - Face Inferior
 		-0.5, -0.5, -0.5, 0.0, 1.0, 1.0,	// Vértice 30 - Ciano
 		0.5, -0.5, -0.5, 0.0, 1.0, 1.0,		// Vértice 31 - Ciano
 		0.5, -0.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 32 - Ciano
 
 		0.5, -0.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 33 - Ciano
 		-0.5, -0.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 34 - Ciano
-		-0.5, -0.5, -0.5, 0.0, 1.0, 1.0		// Vértice 35 - Ciano
+		-0.5, -0.5, -0.5, 0.0, 1.0, 1.0,	// Vértice 35 - Ciano
+
+		// Cubo 2 - Face Frontal
+		-0.5 + 1.5, -0.5 + 1.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 0 - Vermelho
+		0.5 + 1.5, -0.5 + 1.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 1 - Vermelho
+		0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 2 - Vermelho
+
+		0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 3 - Vermelho
+		-0.5 + 1.5, 0.5 + 1.5, 0.5 , 1.0, 0.0, 0.0,		// Vértice 4 - Vermelho
+		-0.5 + 1.5, -0.5 + 1.5, 0.5, 1.0, 0.0, 0.0,		// Vértice 5 - Vermelho
+
+		// Cubo 2 - Face Traseira
+		-0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,	// Vértice 6 - Verde
+		-0.5 + 1.5, 0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 7 - Verde
+		0.5 + 1.5, 0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 8 - Verde
+
+		0.5 + 1.5, 0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 9 - Verde
+		0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,		// Vértice 10 - Verde
+		-0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 0.0,	// Vértice 11 - Verde
+
+		// Cubo 2 - Face Esquerda
+		-0.5 + 1.5, 0.5 + 1.5, -0.5, 0.0, 0.0, 1.0,		// Vértice 12 - Azul
+		-0.5 + 1.5, 0.5 + 1.5, 0.5, 0.0, 0.0, 1.0,		// Vértice 13 - Azul
+		-0.5 + 1.5, -0.5 + 1.5, 0.5, 0.0, 0.0, 1.0,		// Vértice 14 - Azul
+
+		-0.5 + 1.5, -0.5 + 1.5, 0.5, 0.0, 0.0, 1.0,		// Vértice 15 - Azul
+		-0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 0.0, 1.0,	// Vértice 16 - Azul
+		-0.5 + 1.5, 0.5 + 1.5, -0.5, 0.0, 0.0, 1.0,		// Vértice 17 - Azul
+
+		// Cubo 2 - Face Direita
+		0.5 + 1.5, 0.5 + 1.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 18 - Amarelo
+		0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 1.0, 0.0,		// Vértice 19 - Amarelo
+		0.5 + 1.5, -0.5 + 1.5, 0.5, 1.0, 1.0, 0.0,		// Vértice 20 - Amarelo
+
+		0.5 + 1.5, -0.5 + 1.5, 0.5, 1.0, 1.0, 0.0,		// Vértice 21 - Amarelo
+		0.5 + 1.5, -0.5 + 1.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 22 - Amarelo
+		0.5 + 1.5, 0.5 + 1.5, -0.5, 1.0, 1.0, 0.0,		// Vértice 23 - Amarelo
+
+		// Cubo 2 - Face Superior
+		-0.5 + 1.5, 0.5 + 1.5, -0.5, 1.0, 0.0, 1.0,		// Vértice 24 - Magenta
+		-0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 0.0, 1.0,		// Vértice 25 - Magenta
+		0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 0.0, 1.0,		// Vértice 26 - Magenta
+
+		0.5 + 1.5, 0.5 + 1.5, 0.5, 1.0, 0.0, 1.0,		// Vértice 27 - Magenta
+		0.5 + 1.5, 0.5 + 1.5, -0.5 , 1.0, 0.0, 1.0,		// Vértice 28 - Magenta
+		-0.5 + 1.5, 0.5 + 1.5, -0.5, 1.0, 0.0, 1.0,		// Vértice 29 - Magenta
+
+		// Cubo 2 - Face Inferior
+		-0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 1.0,	// Vértice 30 - Ciano
+		0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 1.0,		// Vértice 31 - Ciano
+		0.5 + 1.5, -0.5 + 1.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 32 - Ciano
+
+		0.5 + 1.5, -0.5 + 1.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 33 - Ciano
+		-0.5 + 1.5, -0.5 + 1.5, 0.5, 0.0, 1.0, 1.0,		// Vértice 34 - Ciano
+		-0.5 + 1.5, -0.5 + 1.5, -0.5, 0.0, 1.0, 1.0		// Vértice 35 - Ciano
 	};
 
 	GLuint VBO, VAO;
