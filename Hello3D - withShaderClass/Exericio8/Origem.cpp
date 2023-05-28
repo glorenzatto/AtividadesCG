@@ -38,6 +38,9 @@ const GLuint WIDTH = 1000, HEIGHT = 1000;
 
 
 bool rotateX=false, rotateY=false, rotateZ=false;
+bool translateX = false, translateY = false, translateZ = false;
+
+float scaleFactor = 1.0f;
 
 // Função MAIN
 int main()
@@ -117,6 +120,8 @@ int main()
 
 		float angle = (GLfloat)glfwGetTime();
 
+		// Rotação
+
 		model = glm::mat4(1); 
 		if (rotateX)
 		{
@@ -133,6 +138,28 @@ int main()
 			model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
 
 		}
+
+		// Translação
+
+		if (translateX)
+		{
+			model = glm::translate(model, glm::vec3(sin(angle), 0.0f, 0.0f));
+		}
+		else if (translateY)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, sin(angle), 0.0f));
+		}
+		else if (translateZ)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, 0.0f, sin(angle)));
+		}
+
+		// Escala
+		glm::mat4 scaleMatrix = glm::mat4(1.0f);
+		scaleMatrix[0][0] = scaleFactor;
+		scaleMatrix[1][1] = scaleFactor;
+		scaleMatrix[2][2] = scaleFactor;
+		model = model * scaleMatrix;
 
 		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
 		// Chamada de desenho - drawcall
@@ -170,6 +197,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		rotateX = true;
 		rotateY = false;
 		rotateZ = false;
+		scaleFactor += 0.1;
 	}
 
 	if (key == GLFW_KEY_Y && action == GLFW_PRESS)
@@ -186,8 +214,36 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		rotateZ = true;
 	}
 
+	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+		translateX = true;
+		translateY = false;
+		translateZ = false;
+	}
 
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		translateX = false;
+		translateY = true;
+		translateZ = false;
+	}
 
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		translateX = false;
+		translateY = false;
+		translateZ = true;
+	}
+
+	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+	{
+		scaleFactor += 0.1;
+	}
+
+	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+	{
+		scaleFactor -= 0.1;
+	}
 }
 
 // Esta função está bastante harcoded - objetivo é criar os buffers que armazenam a 
