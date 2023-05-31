@@ -197,7 +197,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		rotateX = true;
 		rotateY = false;
 		rotateZ = false;
-		scaleFactor += 0.1;
 	}
 
 	if (key == GLFW_KEY_Y && action == GLFW_PRESS)
@@ -242,7 +241,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
 	{
-		scaleFactor -= 0.1;
+		if (scaleFactor > 0) {
+			scaleFactor -= 0.1;
+		}
 	}
 }
 

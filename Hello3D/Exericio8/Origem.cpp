@@ -23,6 +23,10 @@ using namespace std;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <random>
 
 
 // Protótipo da função de callback de teclado
@@ -30,7 +34,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 // Protótipos das funções
 int setupShader();
-int setupGeometry();
+int setupGeometry(int * totalVertices);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 1000, HEIGHT = 1000;
@@ -57,7 +61,10 @@ const GLchar* fragmentShaderSource = "#version 450\n"
 "color = finalColor;\n"
 "}\n\0";
 
-bool rotateX=false, rotateY=false, rotateZ=false;
+bool rotateX = false, rotateY = false, rotateZ = false;
+bool translateX = false, translateY = false, translateZ = false;
+
+float scaleFactor = 1.0f;
 
 // Função MAIN
 int main()
@@ -79,7 +86,7 @@ int main()
 //#endif
 
 	// Criação da janela GLFW
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola 3D -- Rossana!", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola 3D - Gustavo!", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Fazendo o registro da função de callback para a janela GLFW
@@ -108,7 +115,8 @@ int main()
 	GLuint shaderID = setupShader();
 
 	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupGeometry();
+	int totalVertices;
+	GLuint VAO = setupGeometry(&totalVertices);
 
 
 	glUseProgram(shaderID);
@@ -118,9 +126,6 @@ int main()
 	//
 	model = glm::rotate(model, /*(GLfloat)glfwGetTime()*/glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
-
-	glEnable(GL_DEPTH_TEST);
-
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -137,11 +142,14 @@ int main()
 
 		float angle = (GLfloat)glfwGetTime();
 
-		model = glm::mat4(1); 
+		model = glm::mat4(1);
+
+		// Rotação
+
 		if (rotateX)
 		{
 			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
-			
+
 		}
 		else if (rotateY)
 		{
@@ -154,17 +162,41 @@ int main()
 
 		}
 
+		// Translação
+
+		if (translateX)
+		{
+			model = glm::translate(model, glm::vec3(sin(angle), 0.0f, 0.0f));
+		}
+		else if (translateY)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, sin(angle), 0.0f));
+		}
+		else if (translateZ)
+		{
+			model = glm::translate(model, glm::vec3(0.0f, 0.0f, sin(angle)));
+		}
+
+		// Escala
+
+		glm::mat4 scaleMatrix = glm::mat4(1.0f);
+		scaleMatrix[0][0] = scaleFactor;
+		scaleMatrix[1][1] = scaleFactor;
+		scaleMatrix[2][2] = scaleFactor;
+		model = model * scaleMatrix;
+
+
 		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
-		
+
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 18);
+		glDrawArrays(GL_TRIANGLES, 0, totalVertices);
 
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
-		
-		glDrawArrays(GL_POINTS, 0, 18);
+
+		glDrawArrays(GL_POINTS, 0, totalVertices);
 		glBindVertexArray(0);
 
 		// Troca os buffers da tela
@@ -206,8 +238,38 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		rotateZ = true;
 	}
 
+	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+		translateX = true;
+		translateY = false;
+		translateZ = false;
+	}
 
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		translateX = false;
+		translateY = true;
+		translateZ = false;
+	}
 
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		translateX = false;
+		translateY = false;
+		translateZ = true;
+	}
+
+	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+	{
+		scaleFactor += 0.1;
+	}
+
+	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+	{
+		if (scaleFactor > 0) {
+			scaleFactor -= 0.1;
+		}
+	}
 }
 
 //Esta função está basntante hardcoded - objetivo é compilar e "buildar" um programa de
@@ -258,48 +320,59 @@ int setupShader()
 	return shaderProgram;
 }
 
+struct Vertex {
+	float x, y, z;
+};
+
+struct Face {
+	int v1, v2, v3;
+};
+
+bool parseOBJFile(const std::string& filename, std::vector<Vertex>& vertices, std::vector<Face>& faces) {
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file! " << filename << std::endl;
+		return false;
+	}
+	std::string line;
+	while (std::getline(file, line)) {
+		std::istringstream iss(line);
+		std::string prefix;
+		iss >> prefix;
+
+		if (prefix == "v") {
+			Vertex vertex;
+			iss >> vertex.x >> vertex.y >> vertex.z;
+
+			vertices.push_back(vertex);
+		}
+		else if (prefix == "f") {
+			Face face;
+			iss >> face.v1 >> face.v2 >> face.v3;
+			faces.push_back(face);
+		}
+	}
+	file.close();
+	return true;
+}
+
 // Esta função está bastante harcoded - objetivo é criar os buffers que armazenam a 
 // geometria de um triângulo
 // Apenas atributo coordenada nos vértices
 // 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
 // A função retorna o identificador do VAO
-int setupGeometry()
+int setupGeometry(int* totalVertices)
 {
-	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
-	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
-	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
-	// Pode ser arazenado em um VBO único ou em VBOs separados
-	GLfloat vertices[] = {
+	std::vector<Vertex> vertices;
+	std::vector<Face> faces;
 
-		//Base da pirâmide: 2 triângulos
-		//x    y    z    r    g    b
-		-0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		-0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
-		 0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-
-		 -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		  0.5, -0.5,  0.5, 0.0, 1.0, 1.0,
-		  0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-
-		 //
-		 -0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-		  0.0,  0.5,  0.0, 1.0, 1.0, 0.0,
-		  0.5, -0.5, -0.5, 1.0, 1.0, 0.0,
-
-		  -0.5, -0.5, -0.5, 1.0, 0.0, 1.0,
-		  0.0,  0.5,  0.0, 1.0, 0.0, 1.0,
-		  -0.5, -0.5, 0.5, 1.0, 0.0, 1.0,
-
-		   -0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-		  0.0,  0.5,  0.0, 1.0, 1.0, 0.0,
-		  0.5, -0.5, 0.5, 1.0, 1.0, 0.0,
-
-		   0.5, -0.5, 0.5, 0.0, 1.0, 1.0,
-		  0.0,  0.5,  0.0, 0.0, 1.0, 1.0,
-		  0.5, -0.5, -0.5, 0.0, 1.0, 1.0,
-
-
-	};
+	if (parseOBJFile("suzanne.obj", vertices, faces)) {
+		std::cout << "Parsed " << vertices.size() << " vertices and " << faces.size() << " faces." << std::endl;
+	}
+	else {
+		std::cerr << "Failed to parse OBJ file." << std::endl;
+		return 0;
+	}
 
 	GLuint VBO, VAO;
 
@@ -310,7 +383,7 @@ int setupGeometry()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	//Envia os dados do array de floats para o buffer da OpenGl
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
 	//Geração do identificador do VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);
@@ -318,7 +391,7 @@ int setupGeometry()
 	// Vincula (bind) o VAO primeiro, e em seguida  conecta e seta o(s) buffer(s) de vértices
 	// e os ponteiros para os atributos 
 	glBindVertexArray(VAO);
-	
+
 	//Para cada atributo do vertice, criamos um "AttribPointer" (ponteiro para o atributo), indicando: 
 	// Localização no shader * (a localização dos atributos devem ser correspondentes no layout especificado no vertex shader)
 	// Numero de valores que o atributo tem (por ex, 3 coordenadas xyz) 
@@ -326,13 +399,13 @@ int setupGeometry()
 	// Se está normalizado (entre zero e um)
 	// Tamanho em bytes 
 	// Deslocamento a partir do byte zero 
-	
+
 	//Atributo posição (x, y, z)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
 	//Atributo cor (r, g, b)
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(Vertex), (GLvoid*)(3 * sizeof(Vertex)));
 	glEnableVertexAttribArray(1);
 
 
@@ -344,6 +417,7 @@ int setupGeometry()
 	// Desvincula o VAO (é uma boa prática desvincular qualquer buffer ou array para evitar bugs medonhos)
 	glBindVertexArray(0);
 
+	*totalVertices = vertices.size();
+
 	return VAO;
 }
-
