@@ -26,6 +26,10 @@ Atividade M6
 
 ![M6](https://github.com/glorenzatto/AtividadesCG/assets/120614632/ecec476c-247b-4183-bc8a-339e64c90c47)
 
+Prova GB
+
+![ProvaGB](https://github.com/glorenzatto/AtividadesCG/assets/120614632/45b0ecac-df7f-4ef9-ae94-c691dc0a29b3)
+
 
 
 
